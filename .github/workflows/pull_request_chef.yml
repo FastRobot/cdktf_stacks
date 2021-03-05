@@ -1,0 +1,31 @@
+name: Chef PR preview
+on:
+  pull_request:
+    paths:
+      - 'chef-repo/**'
+jobs:
+  preview:
+    name: Preview Chef-${{ github.base_ref }}
+    runs-on: ubuntu-latest
+    container: docker://chef/chefworkstation
+    steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: gha-buildevents_integration
+          job-status: ${{ job.status }}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: chef workstation-${{ github.base_ref }}
+        working-directory: ./chef-repo
+        run: |
+          ls -al
+          chef -v
+          pwd
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-west-2
+          S3_BACKEND_URL: s3://fr-personal-account-config/cdktf-test/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

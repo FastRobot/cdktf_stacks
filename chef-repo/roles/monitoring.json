@@ -1,0 +1,15 @@
+{
+    "name": "monitoring",
+    "description": "This is the monitoring role we expect to run to setup a monitoring stack",
+    "chef_type": "role",
+    "json_class": "Chef::Role",
+    "default_attributes": {
+    },
+    "override_attributes": {
+    },
+    "run_list": [
+        "role[base]",
+        "recipe[ourMonitoring::prometheus]",
+        "recipe[ourMonitoring::grafana]"
+    ]
+}

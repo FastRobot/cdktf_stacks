@@ -1,0 +1,12 @@
+{
+    "name": "staging",
+    "description": "This is the staging environment defined as JSON",
+    "chef_type": "environment",
+    "json_class": "Chef::Environment",
+    "default_attributes": {
+    },
+    "override_attributes": {
+    },
+    "cookbook_versions": {
+    }
+}
