@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          dataset: gha-buildevents_integration
-          job-status: ${{ job.status }}
+       with:
+         apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+         dataset: gha-buildevents_integration
+         job-status: ${{ job.status }}
       - uses: actions/checkout@v2
       - id: cookbook_list
         run: echo "::set-output name=matrix::$(find chef-repo/cookbooks -type d -depth 1 | awk -F/ '{print $3}')"
