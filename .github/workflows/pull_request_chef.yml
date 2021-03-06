@@ -16,7 +16,7 @@ jobs:
      - uses: actions/checkout@v2
      - id: cookbook_list
        # later replace this with a helper script from inside a container.
-       run: echo ::set-output name=matrix::$(["ourBase", "ourMonitoring"])
+       run: echo "::set-output name=matrix::$([\"ourBase\", \"ourMonitoring\"])"
     outputs:
       matrix: ${{ steps.cookbook_list.outputs.matrix }}
   test_cookbooks:
