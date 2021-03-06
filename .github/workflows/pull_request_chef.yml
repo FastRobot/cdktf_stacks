@@ -1,8 +1,8 @@
 name: Chef PR preview
 on:
   pull_request:
-    paths:
-      - 'chef-repo/**'
+    #paths:
+    #  - 'chef-repo/**'
 jobs:
   enumerate_cookbooks:
     name: Enumerate Cookbooks
