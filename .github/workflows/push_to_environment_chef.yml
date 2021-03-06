@@ -31,7 +31,7 @@ jobs:
         run: echo ${{ steps.branch_finder.outputs.short_ref }}
       - name: Chef uploads for ${{ matrix.project }}-${{ steps.branch_finder.outputs.short_ref }}
         working_directory: ${{ matrix.project }}
-        runs: |
+        run: |
           pwd
           chef -v
           echo I should tar up some chef-repo to save to s3 for nodes to fetch and execute later
