@@ -15,7 +15,8 @@ jobs:
          job-status: ${{ job.status }}
      - uses: actions/checkout@v2
      - id: cookbook_list
-       run: echo "::set-output name=matrix::$(find chef-repo/cookbooks -type d -maxdepth 1 | awk -F/ '{print $3}')"
+       # later replace this with a helper script from inside a container.
+       run: echo '::set-output name=matrix::$(["ourBase", "ourMonitoring"])'
     outputs:
       matrix: ${{ steps.cookbook_list.outputs.matrix }}
   test_cookbooks:
