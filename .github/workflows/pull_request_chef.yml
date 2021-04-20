@@ -3,29 +3,52 @@ on:
   pull_request:
     paths:
       - 'chef-repo/**'
+      - '.github/workflows/*_chef.yml'
 jobs:
-  preview:
-    name: Preview Chef-${{ github.base_ref }}
+  enumerate_cookbooks:
+    name: Enumerate Cookbooks
+    runs-on: ubuntu-latest
+    steps:
+     - uses: kvrhdn/gha-buildevents@main
+       with:
+         apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+         dataset: gha-buildevents_integration
+         job-status: ${{ job.status }}
+     - uses: actions/checkout@v2
+     - id: cookbook_list
+       # later replace this with a helper script from inside a container.
+       run: echo "::set-output name=matrix::[\"ourBase\", \"ourMonitoring\"]"
+    outputs:
+      matrix: ${{ steps.cookbook_list.outputs.matrix }}
+  test_cookbooks:
+    name: Test Cookbooks
+    needs: enumerate_cookbooks
     runs-on: ubuntu-latest
     container: docker://chef/chefworkstation
+    strategy:
+      matrix:
+        cookbook: ${{ fromJson(needs.enumerate_cookbooks.outputs.matrix) }}
     steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          dataset: gha-buildevents_integration
-          job-status: ${{ job.status }}
       - uses: actions/checkout@v2
+      - name: 'Chef Lint'
+        uses: FastRobot/chef-cookbook-action@main
         with:
-          fetch-depth: 1
-      - name: chef workstation-${{ github.base_ref }}
-        working-directory: ./chef-repo
-        run: |
-          ls -al
-          chef -v
-          pwd
+          chef_actions_task: 'lint'
+          chef_actions_working_dir: chef-repo/cookbooks/${{ matrix.cookbook }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-west-2
-          S3_BACKEND_URL: s3://fr-personal-account-config/cdktf-test/
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Unit Tests'
+        uses: FastRobot/chef-cookbook-action@main
+        with:
+          chef_actions_task: 'spec'
+          chef_actions_working_dir: chef-repo/cookbooks/${{ matrix.cookbook }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Kitchen Tests'
+        uses: FastRobot/chef-cookbook-action@main
+        with:
+          chef_actions_task: 'kitchen'
+          chef_actions_working_dir: chef-repo/cookbooks/${{ matrix.cookbook }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
